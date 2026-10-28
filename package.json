@@ -86,6 +86,6 @@
     "test:watch": "vitest",
     "clean": "rm -rf lib",
     "pretest": "node scripts/build.mjs",
-    "prepare": "pnpm build"
+    "prepare": "node scripts/build.mjs"
   }
 }

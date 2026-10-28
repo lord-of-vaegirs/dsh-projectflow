@@ -505,7 +505,9 @@ export class ProjectService {
     const project = await this.resolveProject(input.project, sessionId)
     const tasks = await this.store.readTasks(project.id)
     if (input.action === 'list') {
-      const own = tasks.filter((candidate) => candidate.sessionId === sessionId)
+      const own = tasks
+        .filter((candidate) => candidate.sessionId === sessionId)
+        .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
       return { projectId: project.id, task: own[0] ?? emptyTask(project.id, sessionId), tasks }
     }
     let task = tasks
