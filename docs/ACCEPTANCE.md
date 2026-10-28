@@ -169,6 +169,20 @@ check.**
 
 **Status: PASS on 0.2.1-rc.2.**
 
+### 9. GUI smoke (added during final verification)
+
+`scripts/gui-smoke.mjs` launched the dev Web URL in headless Chrome, dismissed
+the preview dialog, clicked the sidebar **项目工作区** entry, asserted the panel
+heading, and opened **详情**. It passed with no console/page errors. A separate
+mutation check created `GUI-Smoke`, confirmed the card appeared, and deleted it
+to trash through the confirmation dialog; it also passed with no errors.
+
+A separate open check clicked **打开** on `TUIProject`, left the project panel,
+opened a normal conversation, and wrote a new binding to
+`$DSH_HOME/projects/<id>/sessions.json` with no console/page errors.
+
+**Status: PASS (Web client shell, details, create, delete, open project session).**
+
 ## Pending manual checks
 
 These require a live model/account or the Desktop-owned profile and were not

@@ -96,7 +96,7 @@ The renderer is pure. It never writes files and never calls a model.
 - `commands.ts` — `/project` parsing and human-facing output.
 - `prompt.ts` — `system-prompt/assemble` contribution, fork inheritance,
   turn-boundary task checkpoints.
-- `rpc.ts` — authenticated browser RPC bridge.
+- `rpc.ts` — authenticated browser prefix Web route (`connection.admit`).
 
 ### `src/client/`
 
@@ -159,10 +159,13 @@ validated by Zod; command arguments use a quoting-aware tokenizer. Errors are
 
 ### Browser bridge
 
-`connection.rpc.handle('/projectflow', handler)` is registered only when a
-`connection` service exists. Each response is `{ ok, value }` or
+A prefix Web route at `/projectflow` is registered only when `connection` and
+`webServer` services exist. It applies `connection.admit(req)` before reading
+the envelope. Each response is `{ ok, value }` or
 `{ ok: false, error: { code, message } }`. The browser client never accesses the
-filesystem directly.
+filesystem directly. The route is registered through `webServer.register`
+rather than `connection.rpc.handle`; the latter owns the route through the
+calling fiber and can block a profile-bundle plugin during boot.
 
 ## 4. Storage transactions
 

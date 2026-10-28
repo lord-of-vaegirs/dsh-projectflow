@@ -29,7 +29,8 @@ Initial release.
 - Browser/Desktop client: sidebar footer **Project workspaces** action and a
   keyed `projectflow` main panel with create/open/fork/merge/insert/ref/note/
   status/task/delete controls.
-- Authenticated `/projectflow` RPC bridge.
+- Authenticated `/projectflow` browser RPC bridge over a prefix Web route.
+- Read-only GUI smoke script and observed Web panel create/details/delete/open checks.
 - Atomic writes, per-project `wx` locks, stale-lock takeover, capacity archiving.
 - Cross-process concurrency test, budget tests, prompt/tool/command/RPC/client
   tests, and a 23-test automated suite.

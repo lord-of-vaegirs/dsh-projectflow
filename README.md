@@ -330,7 +330,7 @@ Key integration points, verified against DSH `0.2.1-rc.2`:
 - `session/event` (`turn/start`, `turn/end`) — checkpoint the current task
   without writing on every token.
 - `ctx.tools.register` / `ctx.commands.register` — model and human surfaces.
-- `connection.rpc.handle('/projectflow', ...)` — optional browser bridge.
+- An authenticated prefix Web route at `/projectflow` (admission via `connection.admit`) — optional browser bridge.
 
 The renderer is synchronous, pure, and budget-bounded. It has no network access
 and no model call of its own.
@@ -527,6 +527,12 @@ Run:
 pnpm test
 ```
 
+GUI smoke (requires a running dev Web URL and local Chrome):
+
+```bash
+node scripts/gui-smoke.mjs 'http://127.0.0.1:3080/?token=...'
+```
+
 Live checks performed:
 
 ```bash
@@ -546,7 +552,8 @@ dsh --profile dsh-tui --patch /tmp/pf-tui-overlay.yml
 ```
 
 See [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) for the acceptance checklist and
-observed results.
+observed results, and [docs/PUBLISHING.md](docs/PUBLISHING.md) for the release
+and GitHub/npm path.
 
 ---
 

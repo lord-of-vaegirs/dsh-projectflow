@@ -1,3 +1,4 @@
+import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ProjectService } from '../domain/project-service.js'
 import { ProjectError } from '../errors.js'
 import type { DshContext } from './contracts.js'
@@ -169,35 +170,97 @@ async function dispatch(
   }
 }
 
+function writeJson(res: ServerResponse, status: number, value: unknown): void {
+  res.writeHead(status, { 'content-type': 'application/json; charset=utf-8' })
+  res.end(JSON.stringify(value))
+}
+
+async function readBody(req: IncomingMessage): Promise<string> {
+  const chunks: Buffer[] = []
+  let size = 0
+  for await (const chunk of req) {
+    const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+    size += bytes.byteLength
+    if (size > 1_048_576) throw new ProjectError('INVALID_ARGUMENT', 'RPC body is too large.')
+    chunks.push(bytes)
+  }
+  return Buffer.concat(chunks).toString('utf8')
+}
+
 /**
- * Register the browser bridge. TUI/headless deployments have no connection
- * service; the bridge is optional and must not prevent host tools from working.
+ * Register the browser bridge as an exact authenticated Web route.
+ *
+ * A direct route is used instead of `connection.rpc.handle` because the latter
+ * owns its route through the calling fiber; a plugin fiber mounted from a
+ * profile's bundle layer can otherwise block during boot. `connection.admit`
+ * still applies the same Host/Origin and browser-cookie fence.
  */
 export function registerProjectRpc(ctx: DshContext, service: ProjectService): void {
   if (ctx.inject === undefined) return
-  ctx.inject(['connection'], (inner) => {
-    const connection = inner.connection
-    if (connection === undefined) return
-    const handler = async (endpoint: string, payload: unknown) => {
+  ctx.inject(['connection', 'webServer'], (inner) => {
+    const connection = inner.connection as any
+    const webServer = (inner as any).webServer as {
+      register(route: {
+        kind: 'prefix'
+        path: string
+        handler: (req: IncomingMessage, res: ServerResponse) => void | Promise<void>
+      }): () => void
+    } | undefined
+    if (connection === undefined || webServer === undefined) return
+    const handler = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
+      const admission = connection.admit(req)
+      if ('rejection' in admission) {
+        res.writeHead(admission.rejection)
+        res.end(admission.rejection === 401 ? 'unauthorized' : 'forbidden')
+        return
+      }
+      if (req.method !== 'POST') {
+        res.writeHead(405)
+        res.end()
+        return
+      }
+      const pathname = new URL(req.url ?? '/', 'http://projectflow.invalid').pathname
+      const endpoint = pathname.startsWith('/projectflow/') ? pathname.slice('/projectflow/'.length) : undefined
+      if (endpoint === undefined || endpoint === '') {
+        res.writeHead(404)
+        res.end('not found')
+        return
+      }
       try {
-        return { ok: true as const, value: await dispatch(ctx, service, endpoint, payload) }
-      } catch (error) {
-        const projectError = error instanceof ProjectError
-          ? error
-          : new ProjectError('IO_ERROR', (error as Error).message)
-        return {
-          ok: false as const,
-          error: { code: projectError.code, message: projectError.message },
+        const text = await readBody(req)
+        const message = JSON.parse(text) as Record<string, unknown>
+        if (message.type !== 'client-request' || typeof message.rpcId !== 'string' || typeof message.method !== 'string') {
+          writeJson(res, 400, { type: 'server-response', rpcId: typeof message.rpcId === 'string' ? message.rpcId : '', result: { ok: false, error: { code: 'invalid-request', message: 'invalid client-request envelope' } } })
+          return
         }
+        if (message.method !== endpoint) {
+          writeJson(res, 200, {
+            type: 'server-response',
+            rpcId: message.rpcId,
+            result: { ok: false, error: { code: 'bad-request', message: 'method does not match endpoint' } },
+          })
+          return
+        }
+        let result: unknown
+        try {
+          result = { ok: true, value: await dispatch(ctx, service, endpoint, message.payload) }
+        } catch (error) {
+          const projectError = error instanceof ProjectError
+            ? error
+            : new ProjectError('IO_ERROR', (error as Error).message)
+          result = { ok: false, error: { code: projectError.code, message: projectError.message } }
+        }
+        writeJson(res, 200, { type: 'server-response', rpcId: message.rpcId, result })
+      } catch (error) {
+        writeJson(res, 400, {
+          type: 'server-response',
+          rpcId: '',
+          result: { ok: false, error: { code: 'bad-request', message: (error as Error).message } },
+        })
       }
     }
-    try {
-      const dispose = connection.rpc.handle('/projectflow', handler)
-      inner.effect?.(() => () => {
-        void dispose()
-      }, 'projectflow: browser RPC')
-    } catch (error) {
-      ctx.logger?.warn?.(`[projectflow] RPC bridge unavailable: ${(error as Error).message}`)
-    }
+    const route = { kind: 'prefix' as const, path: '/projectflow', handler }
+    const dispose = webServer.register(route)
+    inner.effect?.(() => dispose, 'projectflow: browser RPC route')
   })
 }

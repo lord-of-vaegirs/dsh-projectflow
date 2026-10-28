@@ -1,23 +1,44 @@
 import { describe, expect, it } from 'vitest'
 import { registerProjectRpc } from '../../src/dsh/rpc.js'
-import { cleanup, fakeAgent, serviceFor, tempProjectRoot } from '../helpers/tmp.js'
+import { cleanup, serviceFor, tempProjectRoot } from '../helpers/tmp.js'
 import { fakeContext } from '../helpers/context.js'
+
+function requestFor(endpoint: string, payload: unknown): any {
+  const body = Buffer.from(JSON.stringify({ type: 'client-request', rpcId: 'rpc-1', method: endpoint, payload }))
+  return {
+    method: 'POST',
+    url: `/projectflow/${endpoint}`,
+    headers: {},
+    async *[Symbol.asyncIterator]() {
+      yield body
+    },
+  }
+}
+
+function responseSink(): { res: any; done: Promise<any> } {
+  let resolve: (value: any) => void
+  const done = new Promise<any>((next) => { resolve = next })
+  const res = {
+    writeHead: () => undefined,
+    end: (text: string) => resolve(JSON.parse(text)),
+  }
+  return { res, done }
+}
 
 describe('browser RPC bridge', () => {
   it('dispatches list, create, bind, and context', async () => {
     const { root, dir } = await tempProjectRoot()
     try {
       const service = serviceFor(dir)
-      let handler: any
+      let route: any
       const { ctx } = fakeContext({
         inject: (_deps, callback) => {
           callback({
-            connection: {
-              rpc: {
-                handle: (_channel, next) => {
-                  handler = next
-                  return async () => undefined
-                },
+            connection: { admit: () => ({ peer: {} }) },
+            webServer: {
+              register: (next: any) => {
+                route = next
+                return () => undefined
               },
             },
             effect: (operation: () => unknown) => { operation() },
@@ -25,29 +46,36 @@ describe('browser RPC bridge', () => {
         },
       })
       registerProjectRpc(ctx, service)
-      expect(handler).toBeDefined()
-      const empty = await handler('list', {})
-      expect(empty.ok).toBe(true)
-      expect(empty.value.projects).toHaveLength(0)
+      expect(route?.path).toBe('/projectflow')
 
-      const created = await handler('create', {
+      const invoke = async (endpoint: string, payload: unknown) => {
+        const sink = responseSink()
+        await route.handler(requestFor(endpoint, payload), sink.res)
+        return sink.done
+      }
+
+      const empty = await invoke('list', {})
+      expect(empty.result.ok).toBe(true)
+      expect(empty.result.value.projects).toHaveLength(0)
+
+      const created = await invoke('create', {
         name: 'RPC',
         primaryPath: '/tmp/rpc',
         bindSessionId: 's1',
       })
-      expect(created.ok).toBe(true)
-      expect(created.value.project.name).toBe('RPC')
+      expect(created.result.ok).toBe(true)
+      expect(created.result.value.project.name).toBe('RPC')
 
-      const bound = await handler('bind', { sessionId: 's1', project: 'RPC' })
-      expect(bound.ok).toBe(true)
+      const bound = await invoke('bind', { sessionId: 's1', project: 'RPC' })
+      expect(bound.result.ok).toBe(true)
 
-      const context = await handler('context', { sessionId: 's1' })
-      expect(context.ok).toBe(true)
-      expect(context.value.projectId).toBe(created.value.project.id)
+      const context = await invoke('context', { sessionId: 's1' })
+      expect(context.result.ok).toBe(true)
+      expect(context.result.value.projectId).toBe(created.result.value.project.id)
 
-      const failure = await handler('status', {})
-      expect(failure.ok).toBe(false)
-      expect(failure.error.code).toBe('SESSION_REQUIRED')
+      const failure = await invoke('status', {})
+      expect(failure.result.ok).toBe(false)
+      expect(failure.result.error.code).toBe('SESSION_REQUIRED')
     } finally {
       await cleanup(root)
     }
