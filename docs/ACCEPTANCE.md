@@ -201,6 +201,21 @@ operations completed with no console/page errors.
 **Status: PASS (Web client shell, details, create, delete, open project session,
 fork, note, ref, merge).**
 
+### 11. Published repository and release
+
+- Repository: https://github.com/lord-of-vaegirs/dsh-projectflow
+- Release: https://github.com/lord-of-vaegirs/dsh-projectflow/releases/tag/v0.1.0
+- Release asset: `dsh-projectflow-0.1.0.tgz` (70,574 bytes)
+- CI: green on `main` (Node 20 and Node 22 jobs)
+- Published asset installed into the dev profile with
+  `dsh plugin --profile dev add https://github.com/lord-of-vaegirs/dsh-projectflow/releases/download/v0.1.0/dsh-projectflow-0.1.0.tgz`
+  and the GUI smoke test passed.
+- `pnpm check:privacy` scans tracked and built text for personal home paths,
+  token shapes, private-key blocks, and bearer literals. It passed before the
+  release asset was uploaded, and the extracted tarball was manually audited.
+
+**Status: PASS.**
+
 ## Pending manual checks
 
 These require a live model/account or the Desktop-owned profile and were not
