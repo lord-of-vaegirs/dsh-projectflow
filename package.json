@@ -1,6 +1,6 @@
 {
   "name": "dsh-projectflow",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Project-first workspaces for DeepSeek Harness: durable project context, task checkpoints, references, fork/merge, and a project workspace GUI.",
   "keywords": [
     "deepseek-harness",

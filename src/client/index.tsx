@@ -179,16 +179,20 @@ function FooterButton({ wide, openPanel, t }: { wide?: boolean; openPanel: () =>
         alignItems: 'center',
         gap: 8,
         width: wide === false ? 32 : 'auto',
-        height: 32,
-        padding: wide === false ? 0 : '0 10px',
+        height: wide === false ? 32 : 36,
+        padding: wide === false ? 0 : '0 4px',
         justifyContent: wide === false ? 'center' : 'flex-start',
         border: 'none',
         borderRadius: 8,
         background: 'transparent',
-        color: 'var(--dsh-text-secondary, #888)',
+        color: wide === false
+          ? 'var(--dsh-text-secondary, #888)'
+          : 'var(--dsw-alias-label-tertiary, var(--dsh-text-tertiary, #777))',
         cursor: 'pointer',
         font: 'inherit',
-        fontSize: 12,
+        fontSize: wide === false ? 12 : 14,
+        fontWeight: 400,
+        lineHeight: '20px',
       }}
     >
       <ProjectIcon />

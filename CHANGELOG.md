@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 — 2026-10-28
+
+### Fixed
+
+- The sidebar footer label **Project workspaces / 项目工作区** now uses the same
+  14px size, weight, tertiary color, and 20px line height as the **Workspaces /
+  工作区** section header, so the two read as sibling sections.
+
 ## 0.1.0 — 2026-10-28
 
 Initial release.

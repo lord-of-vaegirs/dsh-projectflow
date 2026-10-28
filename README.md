@@ -1,7 +1,7 @@
 # dsh-projectflow
 
 [![ci](https://github.com/lord-of-vaegirs/dsh-projectflow/actions/workflows/ci.yml/badge.svg)](https://github.com/lord-of-vaegirs/dsh-projectflow/actions/workflows/ci.yml)
-[![release](https://img.shields.io/github/v/release/lord-of-vaegirs/dsh-projectflow)](https://github.com/lord-of-vaegirs/dsh-projectflow/releases/tag/v0.1.0)
+[![release](https://img.shields.io/github/v/release/lord-of-vaegirs/dsh-projectflow)](https://github.com/lord-of-vaegirs/dsh-projectflow/releases/latest)
 
 **Project-first workspaces for DeepSeek Harness.** A DSH plugin that makes the project — not the current folder — the durable unit of context, task state, references, and workspace composition.
 
@@ -83,7 +83,7 @@ sidebar footer, below the normal Workspaces region, labelled **Project workspace
 
 ```bash
 # release tarball
-dsh plugin --profile <profile> add https://github.com/lord-of-vaegirs/dsh-projectflow/releases/download/v0.1.0/dsh-projectflow-0.1.0.tgz
+dsh plugin --profile <profile> add https://github.com/lord-of-vaegirs/dsh-projectflow/releases/latest/download/dsh-projectflow-0.1.1.tgz
 
 # or npm, once published
 dsh plugin --profile <profile> add dsh-projectflow
