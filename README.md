@@ -564,8 +564,7 @@ dsh --profile dsh-tui --patch /tmp/pf-tui-overlay.yml
 ```
 
 See [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) for the acceptance checklist and
-observed results, and [docs/PUBLISHING.md](docs/PUBLISHING.md) for the release
-and GitHub/npm path.
+observed results.
 
 ---
 
