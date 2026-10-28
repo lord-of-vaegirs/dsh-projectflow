@@ -204,11 +204,11 @@ fork, note, ref, merge).**
 ### 11. Published repository and release
 
 - Repository: https://github.com/lord-of-vaegirs/dsh-projectflow
-- Release: https://github.com/lord-of-vaegirs/dsh-projectflow/releases/tag/v0.1.0
-- Release asset: `dsh-projectflow-0.1.0.tgz` (70,574 bytes)
+- Release: https://github.com/lord-of-vaegirs/dsh-projectflow/releases/tag/v0.1.1
+- Release asset: `dsh-projectflow-0.1.1.tgz` (70,009 bytes)
 - CI: green on `main` (Node 20 and Node 22 jobs)
 - Published asset installed into the dev profile with
-  `dsh plugin --profile dev add https://github.com/lord-of-vaegirs/dsh-projectflow/releases/download/v0.1.0/dsh-projectflow-0.1.0.tgz`
+  `dsh plugin --profile dev add https://github.com/lord-of-vaegirs/dsh-projectflow/releases/download/v0.1.1/dsh-projectflow-0.1.1.tgz`
   and the GUI smoke test passed.
 - `pnpm check:privacy` scans tracked and built text for personal home paths,
   token shapes, private-key blocks, and bearer literals. It passed before the
