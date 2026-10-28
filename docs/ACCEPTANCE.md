@@ -141,10 +141,16 @@ the new revision.
 - projectflow appends a unique `projectflow:context` section and never removes
   mnemon sections.
 - `tests/unit/prompt.test.ts` confirms an unrelated section survives.
-- A dev-profile install of both plugins was not left enabled in this run; the
-  Desktop profile (which has mnemon) was intentionally not modified.
+- The dev profile was additionally installed with `dsh-mnemon@0.5.36`.
+  `dsh --profile dev --dump-config` contained both `projectflow` and
+  `mnemon-bundle`; the Web boot graph contained both `dsh-projectflow/client.js`
+  and `dsh-mnemon/client.js`. The dev server booted without an activation
+  warning. The Desktop profile was intentionally not modified.
+- A live model prompt containing both markers was not captured because the
+  disposable headless profile has no usable interactive account session.
 
-**Status: structural/unit PASS; live dual-injection is a pending manual check.**
+**Status: composition/unit PASS; live dual-injection prompt is a pending manual
+check.**
 
 ### 8. Compatibility gate
 
