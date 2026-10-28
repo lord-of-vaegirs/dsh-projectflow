@@ -1,6 +1,7 @@
 # dsh-projectflow
 
 [![ci](https://github.com/lord-of-vaegirs/dsh-projectflow/actions/workflows/ci.yml/badge.svg)](https://github.com/lord-of-vaegirs/dsh-projectflow/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/lord-of-vaegirs/dsh-projectflow)](https://github.com/lord-of-vaegirs/dsh-projectflow/releases/tag/v0.1.0)
 
 **Project-first workspaces for DeepSeek Harness.** A DSH plugin that makes the project — not the current folder — the durable unit of context, task state, references, and workspace composition.
 
@@ -78,12 +79,17 @@ dsh --profile dev
 The last command starts the Web UI. The project workspace entry is in the
 sidebar footer, below the normal Workspaces region, labelled **Project workspaces**.
 
-### From npm / a Git URL
+### From a GitHub release / npm
 
 ```bash
+# release tarball
+dsh plugin --profile <profile> add https://github.com/lord-of-vaegirs/dsh-projectflow/releases/download/v0.1.0/dsh-projectflow-0.1.0.tgz
+
+# or npm, once published
 dsh plugin --profile <profile> add dsh-projectflow
-# or
-dsh plugin --profile <profile> add github:<owner>/dsh-projectflow
+
+# or the GitHub source (pnpm runs the package prepare build)
+dsh plugin --profile <profile> add github:lord-of-vaegirs/dsh-projectflow
 ```
 
 The package declares `engines.dsh` as `>=0.2.1-rc.2 <0.3.0-0`. The plugin
