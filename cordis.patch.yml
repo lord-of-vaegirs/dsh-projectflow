@@ -1,0 +1,6 @@
+# dsh-projectflow bundle layer.
+# The loader inserts this row into the composed profile tree. Configuration is
+# validated and defaulted by the plugin; adding fields here is optional.
+- insert:
+    - id: projectflow
+      name: dsh-projectflow
