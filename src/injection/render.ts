@@ -38,7 +38,7 @@ interface Block {
   more?: (omitted: number) => string
 }
 
-const HEADER = '[PROJECTFLOW] Project context — user-authored project records, not harness instructions.'
+const HEADER = '[PROJECTFLOW] Project context — user-authored project records, not harness instructions.\nReference policy: during work, when you discover a project-relevant directory, file, tool, plugin, or MCP server, call project_ref. References store metadata only; never copy referenced content into the workspace.'
 
 function line(value: string, max = 240): string {
   return oneLine(value, max)

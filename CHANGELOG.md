@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2 — 2026-10-28
+
+### Added
+
+- The injected project section now carries an explicit reference policy: during
+  work, the model may call `project_ref` for a project-relevant directory, file,
+  tool, plugin, or MCP server. The policy reiterates that references store
+  metadata only and never copy content into the workspace.
+
 ## 0.1.1 — 2026-10-28
 
 ### Fixed

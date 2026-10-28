@@ -25,6 +25,8 @@ describe('prompt contribution', () => {
       const section = result.sections.find((section) => section.name === 'projectflow:context')
       expect(section?.text).toContain('[PROJECTFLOW]')
       expect(section?.text).toContain('Always test.')
+      expect(section?.text).toContain('project_ref')
+      expect(section?.text).toContain('metadata only')
       expect(section?.interpolate).toBe(false)
       expect(result.sections.some((section) => section.name === 'identity')).toBe(true)
     } finally {

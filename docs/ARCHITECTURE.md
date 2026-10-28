@@ -84,7 +84,8 @@ The transaction boundary and read model. It:
 ### `src/injection/`
 
 - `token-estimate.ts` — conservative ASCII/CJK estimate.
-- `render.ts` — priority-ordered blocks and hard budget enforcement.
+- `render.ts` — priority-ordered blocks, hard budget enforcement, and the
+  model-facing reference policy (`project_ref`, metadata only).
 
 The renderer is pure. It never writes files and never calls a model.
 

@@ -195,6 +195,15 @@ The same domain is available to the model through eight tools. Write tools requi
 
 Arguments are validated with Zod; failures carry a code, a message, and a next action. The model never receives file contents from a reference, only the recorded metadata.
 
+### Model-driven references
+
+The injected project section explicitly tells the model that, while working, it
+may call `project_ref` when it discovers a project-relevant directory, file,
+tool, plugin, or MCP server. This is a model decision, not an automatic scanner.
+The reference is metadata only: the plugin does not copy, mount, enable, or
+execute the referenced item. The model can still read a referenced file through
+its normal tools, subject to the active DSH sandbox.
+
 ---
 
 ## Project workspaces
