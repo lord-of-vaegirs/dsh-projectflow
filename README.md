@@ -1,5 +1,7 @@
 # dsh-projectflow
 
+[![ci](https://github.com/lord-of-vaegirs/dsh-projectflow/actions/workflows/ci.yml/badge.svg)](https://github.com/lord-of-vaegirs/dsh-projectflow/actions/workflows/ci.yml)
+
 **Project-first workspaces for DeepSeek Harness.** A DSH plugin that makes the project — not the current folder — the durable unit of context, task state, references, and workspace composition.
 
 `dsh-projectflow` gives every project a stable id and a data home under `$DSH_HOME/projects/<projectId>/`. Any session in any directory can join the same project and inherit its conventions, decisions, progress, references, and current task checkpoint. Project data survives plugin removal, DSH restarts, and working-directory changes.

@@ -89,5 +89,18 @@
     "pretest": "node scripts/build.mjs",
     "prepare": "node scripts/build.mjs",
     "smoke:gui": "node scripts/gui-smoke.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lord-of-vaegirs/dsh-projectflow.git"
+  },
+  "homepage": "https://github.com/lord-of-vaegirs/dsh-projectflow#readme",
+  "bugs": {
+    "url": "https://github.com/lord-of-vaegirs/dsh-projectflow/issues"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
