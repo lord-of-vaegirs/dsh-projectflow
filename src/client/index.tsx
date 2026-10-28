@@ -4,7 +4,7 @@ import type {
   ProjectSummary,
   WorkspaceMember,
 } from '../shared/contracts.js'
-import { callProjectflow, type ClientPanelApi } from './api.js'
+import { callProjectflow, type ClientConversation, type ClientPanelApi } from './api.js'
 
 const NS = 'projectflow'
 
@@ -60,6 +60,10 @@ const en: Record<string, string> = {
   'panel.sidebar': 'Projects',
   'panel.footer': 'Project workspaces',
   'panel.openSession': 'Open project session',
+  'panel.newConversation': 'New project conversation',
+  'panel.conversations': 'Project conversations',
+  'panel.noConversations': 'No project conversations yet.',
+  'panel.untitledConversation': 'Untitled conversation',
   'panel.error': 'Operation failed',
   'panel.eta': 'Context',
   'panel.archived': 'archived',
@@ -137,6 +141,10 @@ const zh: Record<string, string> = {
   'panel.sidebar': '项目',
   'panel.footer': '项目工作区',
   'panel.openSession': '打开项目会话',
+  'panel.newConversation': '新建项目对话',
+  'panel.conversations': '项目对话',
+  'panel.noConversations': '还没有项目对话。',
+  'panel.untitledConversation': '未命名对话',
   'panel.error': '操作失败',
   'panel.eta': '上下文',
   'panel.archived': '已归档',
@@ -351,6 +359,8 @@ function SummaryCard({
   project,
   t,
   onOpen,
+  onOpenConversation,
+  conversations,
   onFork,
   onMerge,
   onInsert,
@@ -362,6 +372,8 @@ function SummaryCard({
   project: ProjectSummary
   t: (key: string) => string
   onOpen: () => void
+  onOpenConversation: (sessionId: string) => void
+  conversations: ClientConversation[]
   onFork: () => void
   onMerge: () => void
   onInsert: () => void
@@ -398,7 +410,7 @@ function SummaryCard({
           )}
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <Button variant="primary" onClick={onOpen}>{t('panel.open')}</Button>
+          <Button variant="primary" onClick={onOpen}>{t('panel.newConversation')}</Button>
           <Button onClick={onDetails}>{expanded ? t('panel.hide') : t('panel.details')}</Button>
         </div>
       </div>
@@ -408,6 +420,18 @@ function SummaryCard({
         <Chip>{project.counts.progress} {t('panel.progress')}</Chip>
         <Chip>{project.counts.members} {t('panel.members')}</Chip>
         <Chip>{project.counts.dirs + project.counts.tools} {t('panel.refs')}</Chip>
+      </div>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+        <span style={{ fontSize: 12, color: 'var(--dsh-text-tertiary, #777)' }}>
+          {t('panel.conversations')} ({conversations.length})
+        </span>
+        {conversations.length === 0 ? (
+          <span style={{ fontSize: 11, color: 'var(--dsh-text-tertiary, #777)' }}>{t('panel.noConversations')}</span>
+        ) : conversations.slice(0, 6).map((conversation) => (
+          <Button key={conversation.id} onClick={() => onOpenConversation(conversation.id)}>
+            {conversation.title || t('panel.untitledConversation')}
+          </Button>
+        ))}
       </div>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
         <Button onClick={onFork}>{t('panel.fork')}</Button>
@@ -422,6 +446,7 @@ function SummaryCard({
 
 function ProjectPanel({ api, t }: { api: ClientPanelApi; t: (key: string) => string }) {
   const [projects, setProjects] = React.useState<ProjectSummary[]>([])
+  const [conversations, setConversations] = React.useState<Record<string, ClientConversation[]>>({})
   const [invalid, setInvalid] = React.useState<Array<{ id: string; error: string }>>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | undefined>()
@@ -438,6 +463,7 @@ function ProjectPanel({ api, t }: { api: ClientPanelApi; t: (key: string) => str
       const result = await api.list()
       setProjects(result.projects)
       setInvalid(result.invalid)
+      setConversations(Object.fromEntries(result.projects.map((project) => [project.id, api.listConversations(project)])))
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason))
     } finally {
@@ -488,6 +514,10 @@ function ProjectPanel({ api, t }: { api: ClientPanelApi; t: (key: string) => str
     } finally {
       setBusy(false)
     }
+  }
+
+  const openConversation = (sessionId: string) => {
+    api.openConversation(sessionId)
   }
 
   const fork = (project: ProjectSummary) => {
@@ -553,6 +583,8 @@ function ProjectPanel({ api, t }: { api: ClientPanelApi; t: (key: string) => str
                 t={t}
                 expanded={expanded === project.id}
                 onOpen={() => { void open(project) }}
+                onOpenConversation={openConversation}
+                conversations={conversations[project.id] ?? []}
                 onFork={() => fork(project)}
                 onMerge={() => { setTargetProject(project); setDialog('merge') }}
                 onInsert={() => { setTargetProject(project); setDialog('insert') }}
@@ -1072,8 +1104,9 @@ interface ClientContext {
     openSession(sessionId: string): void
   }
   workspaces: {
-    list: { getSnapshot(): { items: Array<{ workspaceId: string; path: string }> } }
-    create(input: { path: string }): Promise<{ workspaceId: string; path: string }>
+    list: { getSnapshot(): { items: Array<{ workspaceId: string; path: string; title?: string; sessionIds?: string[] }> } }
+    create(input: { path: string }): Promise<{ workspaceId: string; path: string; title?: string; sessionIds?: string[] }>
+    rename(workspaceId: string, title: string): Promise<unknown>
   }
   sessions: {
     list: { getSnapshot(): { ids?: string[]; items?: Array<{ id: string; title?: string; cwd?: string }>; byId?: Record<string, { id: string; title?: string; cwd?: string }> } }
@@ -1099,10 +1132,18 @@ function buildApi(ctx: ClientContext): ClientPanelApi {
     task: (project, sessionId, action) => call('task', { project, sessionId, action }),
     context: (sessionId) => call('context', { sessionId }),
     enter: async (project) => {
-      const snapshot = ctx.workspaces.list.getSnapshot()
-      let workspace = snapshot.items.find((item) => item.path === project.primaryPath)
+      const info = await call<{ projectId: string; path: string }>('ensure-workspace', { project: project.id })
+      let workspace = ctx.workspaces.list.getSnapshot().items.find((item) => item.path === info.path)
       if (workspace === undefined) {
-        workspace = await ctx.workspaces.create({ path: project.primaryPath })
+        workspace = await ctx.workspaces.create({ path: info.path })
+      }
+      if (workspace.title !== project.name) {
+        try {
+          await ctx.workspaces.rename(workspace.workspaceId, project.name)
+        } catch {
+          // A title collision is not fatal; the internal path still identifies
+          // the conversation workspace.
+        }
       }
       const sessionId = await ctx.uiWorkspace.connectWorkspace(workspace.workspaceId)
       if (sessionId === undefined) throw new Error('DSH did not return a session for this workspace.')
@@ -1110,6 +1151,20 @@ function buildApi(ctx: ClientContext): ClientPanelApi {
       ctx.uiWorkspace.openSession(sessionId)
       ctx.layout.selectPanel(null)
       return sessionId
+    },
+    listConversations: (project) => {
+      const workspace = ctx.workspaces.list.getSnapshot().items.find((item) => item.path === project.conversationPath)
+      if (workspace === undefined) return []
+      const byId = ctx.sessions.list.getSnapshot().byId ?? {}
+      return (workspace.sessionIds ?? []).flatMap((sessionId) => {
+        const session = byId[sessionId]
+        if (session === undefined) return []
+        return [{ id: session.id, title: session.title ?? '', cwd: session.cwd ?? project.conversationPath }]
+      })
+    },
+    openConversation: (sessionId) => {
+      ctx.uiWorkspace.openSession(sessionId)
+      ctx.layout.selectPanel(null)
     },
     listSessions: () => {
       const snapshot = ctx.sessions.list.getSnapshot()

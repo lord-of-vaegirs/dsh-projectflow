@@ -186,6 +186,14 @@ export class ProjectService {
     }
   }
 
+  /** Ensure the project-only conversation workspace exists. */
+  async ensureConversationWorkspace(reference: string): Promise<{ projectId: string; path: string }> {
+    const project = await this.store.getProject(reference)
+    if (project.archived) throw new ProjectError('PROJECT_ARCHIVED', `Project ${project.name} is archived.`)
+    const path = await this.store.ensureConversationDir(project.id)
+    return { projectId: project.id, path }
+  }
+
   async context(projectReference: string, sessionId?: string): Promise<ProjectContextResult> {
     const project = await this.store.getProject(projectReference)
     const snapshot = await this.store.readSnapshot(project.id)

@@ -15,7 +15,7 @@ Environment:
 pnpm test
 ```
 
-Observed: **23 tests passed, 12 files** (host build runs as `pretest`).
+Observed: **24 tests passed, 12 files** (host build runs as `pretest`).
 
 Coverage includes cross-process writers, atomic project creation, capacity
 archive pointers, binding/rebinding/fork inheritance, merge dedupe, context
@@ -213,6 +213,16 @@ fork, note, ref, merge).**
 - `pnpm check:privacy` scans tracked and built text for personal home paths,
   token shapes, private-key blocks, and bearer literals. It passed before the
   release asset was uploaded, and the extracted tarball was manually audited.
+
+**Status: PASS.**
+
+### 12. Project-only conversation workspace
+
+Created a project conversation from the panel. The project workspace was created
+at `$DSH_HOME/projects/<id>/workspace/`, registered with DSH, renamed to
+`TUIProject`, and opened. The sidebar showed a `TUIProject` workspace and the
+conversation header selector showed `TUIProject`; the project panel listed the
+conversation under **项目对话 (1)**. No console/page errors.
 
 **Status: PASS.**
 

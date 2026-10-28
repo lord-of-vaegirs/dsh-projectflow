@@ -83,7 +83,7 @@ sidebar footer, below the normal Workspaces region, labelled **Project workspace
 
 ```bash
 # release tarball
-dsh plugin --profile <profile> add https://github.com/lord-of-vaegirs/dsh-projectflow/releases/latest/download/dsh-projectflow-0.1.1.tgz
+dsh plugin --profile <profile> add https://github.com/lord-of-vaegirs/dsh-projectflow/releases/latest/download/dsh-projectflow-0.2.0.tgz
 
 # or npm, once published
 dsh plugin --profile <profile> add dsh-projectflow
@@ -208,13 +208,27 @@ its normal tools, subject to the active DSH sandbox.
 
 ## Project workspaces
 
+### Project-only conversations
+
+A project has a dedicated DSH conversation workspace at
+`$DSH_HOME/projects/<projectId>/workspace/`. The project panel lists the
+conversations in that workspace and **New project conversation** creates a new
+one there. The workspace is registered with DSH under the project name, so the
+conversation header selects the **project workspace**, not the source directory.
+
+DSH 0.2.1 still requires every Session to have a `cwd`; the internal workspace
+is that cwd. It is deliberately empty. Real source directories, files, tools,
+plugins, and MCP servers are represented by `project_ref`. The internal
+workspace also appears in the normal DSH Workspaces tree, because the host has no
+virtual-workspace/hide API in this version.
+
 A project has one **primary workspace path** and any number of **members**:
 
 - `directory` — another folder to associate with the project;
 - `session` — a DSH session id, title/workspace recorded by the caller;
 - `project` — a membership edge to another project.
 
-Inserting a member stores only the reference in `workspaces.json`. It does not copy, move, or check out any file. Opening a project (GUI **Open**, or `project_use` in a session) creates/uses a DSH Workspace for the primary path and binds the new session to the project.
+Inserting a member stores only the reference in `workspaces.json`. It does not copy, move, or check out any file. **New project conversation** creates a Session in the project's internal conversation workspace and binds it to the project; the source primary path remains a reference target, not the conversation cwd.
 
 **Fork** copies the project records (memory, conventions, decisions, refs, progress, members) into a new project with a new id and `forkedFrom`. It does not copy session bindings or task execution state.
 
@@ -528,7 +542,7 @@ Build notes:
 
 ## Testing
 
-Current suite: **23 tests / 12 files**, including:
+Current suite: **24 tests / 12 files**, including:
 
 - cross-process writer serialization;
 - atomic project creation and no workspace writes;

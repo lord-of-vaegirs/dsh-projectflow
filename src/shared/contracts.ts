@@ -57,6 +57,8 @@ export interface ProjectSummary {
   name: string
   aliases: string[]
   primaryPath: string
+  /** Internal DSH workspace used only for project conversations. */
+  conversationPath: string
   createdAt: string
   updatedAt: string
   archived: boolean

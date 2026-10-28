@@ -47,6 +47,12 @@ export interface ClientSessionSummary {
   blank?: boolean
 }
 
+export interface ClientConversation {
+  id: string
+  title: string
+  cwd: string
+}
+
 export interface ClientPanelApi {
   list(): Promise<{ projects: ProjectSummary[]; invalid: Array<{ id: string; error: string }> }>
   status(project: string): Promise<ProjectStatus>
@@ -83,5 +89,7 @@ export interface ClientPanelApi {
   task(project: string, sessionId: string, action: 'list' | 'checkpoint' | 'interrupt' | 'resume' | 'done' | 'blocked'): Promise<unknown>
   context(sessionId: string): Promise<RpcContextResult>
   enter(project: ProjectSummary): Promise<string>
+  listConversations(project: ProjectSummary): ClientConversation[]
+  openConversation(sessionId: string): void
   listSessions(): Array<{ id: string; title: string; cwd: string }>
 }

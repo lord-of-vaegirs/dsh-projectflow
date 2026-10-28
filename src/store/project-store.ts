@@ -387,6 +387,19 @@ export class ProjectStore {
     return `# ${title}\n\nEntries are separated by a standalone § line. This file is intentionally human-readable.\n`
   }
 
+  /** The internal conversation workspace path for one project. */
+  conversationDir(id: string): string {
+    return join(this.projectDir(id), 'workspace')
+  }
+
+  /** Create the internal conversation workspace directory if needed. */
+  async ensureConversationDir(id: string): Promise<string> {
+    await this.readProject(id)
+    const path = this.conversationDir(id)
+    await ensureDir(path)
+    return path
+  }
+
   async summarize(project: ProjectDocument): Promise<ProjectSummary> {
     const snapshot = await this.readSnapshot(project.id).catch(() => undefined)
     return {
@@ -394,6 +407,7 @@ export class ProjectStore {
       name: project.name,
       aliases: project.aliases,
       primaryPath: project.primaryPath,
+      conversationPath: this.conversationDir(project.id),
       createdAt: project.createdAt,
       updatedAt: project.updatedAt,
       archived: project.archived,

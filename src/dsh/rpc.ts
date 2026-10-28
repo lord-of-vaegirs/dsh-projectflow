@@ -157,6 +157,8 @@ async function dispatch(
           : {}),
       }, agent)
     }
+    case 'ensure-workspace':
+      return service.ensureConversationWorkspace(string(input.project, 'project'))
     case 'context': {
       const sessionId = string(input.sessionId, 'sessionId')
       const binding = await service.bindingForSession(sessionId)

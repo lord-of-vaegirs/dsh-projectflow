@@ -1,3 +1,5 @@
+import { stat } from 'node:fs/promises'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { cleanup, serviceFor, tempProjectRoot } from '../helpers/tmp.js'
 
@@ -69,6 +71,24 @@ describe('merge dedupe', () => {
       const same = status.progress.filter((entry) => entry.did === 'Same work')
       expect(same).toHaveLength(1)
       expect(status.members.some((member) => member.projectId === fork.project.id)).toBe(false)
+    } finally {
+      await cleanup(root)
+    }
+  })
+})
+
+describe('project conversation workspace', () => {
+  it('creates an internal workspace directory and exposes its path', async () => {
+    const { root, dir } = await tempProjectRoot()
+    try {
+      const service = serviceFor(dir)
+      const project = await service.create({ name: 'Conversation', primaryPath: '/tmp/source' })
+      const info = await service.ensureConversationWorkspace(project.project.id)
+      expect(info.path).toBe(join(dir, project.project.id, 'workspace'))
+      const infoStat = await stat(info.path)
+      expect(infoStat.isDirectory()).toBe(true)
+      const summary = await service.store.summarize(await service.get(project.project.id))
+      expect(summary.conversationPath).toBe(info.path)
     } finally {
       await cleanup(root)
     }

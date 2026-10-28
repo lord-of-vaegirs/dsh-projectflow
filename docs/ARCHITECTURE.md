@@ -126,6 +126,18 @@ Why append after `next()`:
 The section text is stable while the project is unchanged, which limits
 `systemPromptUpdate: in-history` churn for models such as deepseek-flash.
 
+### Project conversation workspace
+
+DSH Sessions always need a `cwd`. The plugin therefore gives every project a
+dedicated internal workspace at `<projectDir>/workspace/`. The client registers
+it with DSH, renames it to the project name, creates sessions there, and binds
+each session to the project. The header selector then names the project; real
+source paths remain references rather than the session cwd.
+
+This directory is an implementation detail and is intentionally empty. It is
+also visible in the normal Workspaces tree; DSH 0.2.1 has no virtual-workspace
+or hide API.
+
 ### Session lineage
 
 `SessionHeader.parentSession` is durable fork metadata. On `agent/created`, the

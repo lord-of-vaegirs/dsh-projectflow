@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.2.0 — 2026-10-28
+
+### Added
+
+- Project-only conversations. Each project gets a dedicated internal DSH
+  workspace at `$DSH_HOME/projects/<projectId>/workspace/`.
+- The project panel now lists conversations belonging to that workspace and
+  creates new project conversations there.
+- The project workspace is registered with DSH and renamed to the project name,
+  so the conversation header's workspace selector shows the project rather than
+  a source directory.
+- `ensure-workspace` host RPC creates the internal directory on demand.
+- `conversationPath` is included in project summaries.
+
+### Notes
+
+- DSH still requires every Session to have a cwd. The internal project
+  workspace is that cwd; it is an empty implementation directory, while real
+  sources are represented by `project_ref` references.
+- The internal workspace also appears in the normal DSH Workspaces tree because
+  DSH has no virtual-workspace/hide API in 0.2.1.
+
 ## 0.1.2 — 2026-10-28
 
 ### Added
