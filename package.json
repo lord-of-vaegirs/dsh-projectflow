@@ -87,6 +87,7 @@
     "test:watch": "vitest",
     "clean": "rm -rf lib",
     "pretest": "node scripts/build.mjs",
-    "prepare": "node scripts/build.mjs"
+    "prepare": "node scripts/build.mjs",
+    "smoke:gui": "node scripts/gui-smoke.mjs"
   }
 }

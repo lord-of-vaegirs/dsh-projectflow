@@ -169,7 +169,18 @@ check.**
 
 **Status: PASS on 0.2.1-rc.2.**
 
-### 9. GUI smoke (added during final verification)
+### 9. Release tarball installation
+
+`pnpm pack` produced `/tmp/dsh-projectflow-0.1.0.tgz` containing
+`lib/index.js`, `lib/client.js`, `lib/types`, `cordis.patch.yml`, and docs. The
+tarball was installed into the dev profile with
+`dsh plugin --profile dev add /tmp/dsh-projectflow-0.1.0.tgz`; the dev server
+booted and the GUI smoke test passed. This is the same artifact shape a future
+npm release would publish.
+
+**Status: PASS.**
+
+### 10. GUI smoke (added during final verification)
 
 `scripts/gui-smoke.mjs` launched the dev Web URL in headless Chrome, dismissed
 the preview dialog, clicked the sidebar **项目工作区** entry, asserted the panel
@@ -181,7 +192,14 @@ A separate open check clicked **打开** on `TUIProject`, left the project panel
 opened a normal conversation, and wrote a new binding to
 `$DSH_HOME/projects/<id>/sessions.json` with no console/page errors.
 
-**Status: PASS (Web client shell, details, create, delete, open project session).**
+A mutation check exercised **Fork**, **添加记录**, **引用**, **插入**, and
+**合并** through the panel: a `GUI-Fork` project was created, a convention and a
+directory ref were added, `/tmp/gui-member` was inserted as a directory member,
+and the fork was merged into `TUIProject` with the source moved to trash. All
+operations completed with no console/page errors.
+
+**Status: PASS (Web client shell, details, create, delete, open project session,
+fork, note, ref, merge).**
 
 ## Pending manual checks
 
