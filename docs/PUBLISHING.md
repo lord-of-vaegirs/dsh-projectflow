@@ -68,6 +68,7 @@ bundle is a standard `platform: web` DSH client package, but Desktop
 
 ## 6. Release checklist
 
+- [ ] `pnpm check:privacy` passes; no personal paths, tokens, or keys.
 - [ ] Tests pass on macOS and Linux CI.
 - [ ] `pnpm pack` contents reviewed.
 - [ ] README install commands verified from a clean profile.

@@ -460,6 +460,9 @@ explicit record.
 - Deletion is soft by default (`.trash`); `purge` is explicit.
 - Project directories are created with `0700`; files use `0600`.
 - A standalone `§` in content is rejected to prevent delimiter injection.
+- `pnpm check:privacy` scans tracked and built text for personal home paths,
+  token shapes, private-key blocks, and bearer literals; CI runs it before
+  typecheck. It prints locations only, never matching values.
 
 ---
 
@@ -532,6 +535,7 @@ Current suite: **23 tests / 12 files**, including:
 Run:
 
 ```bash
+pnpm check:privacy
 pnpm test
 ```
 
